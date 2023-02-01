@@ -22,17 +22,18 @@ namespace EventManagementSystem.Controllers
         public async Task<IActionResult> Index()
         {
             var customers = new List<Customers>();
-                
+
             await _connection.OpenAsync();
-            await using (var command = new MySqlCommand("SELECT * FROM Customers", _connection))
+            await using (var command = new MySqlCommand("sp_GetAllCustomers", _connection))
             {
+                command.CommandType = CommandType.StoredProcedure;
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
 
                         var customer = new Customers
-                        {                       
+                        {
                             Id = reader.GetInt32(0),
                             Firstname = reader.GetString(1),
                             Middlename = reader.GetString(2),
@@ -41,12 +42,12 @@ namespace EventManagementSystem.Controllers
                             Gender = reader.GetString(5),
                             DateCreated = reader.GetDateTime(6),
                         };
-                      
-                        if(customer==null)
+
+                        if (customer == null)
                         {
                             return NotFound(); // Returns a 404 Not Found status code
                         }
-                         customers.Add(customer);
+                        customers.Add(customer);
                     }
                 }
             }
@@ -54,6 +55,45 @@ namespace EventManagementSystem.Controllers
 
             return View(customers);
         }
+
+        //get deleted
+        public async Task<IActionResult> GetDeletedCustomers()
+        {
+            var customers = new List<Customers>();
+
+            await _connection.OpenAsync();
+            await using (var command = new MySqlCommand("sp_GetDeletedCustomers", _connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+
+                        var customer = new Customers
+                        {
+                            Id = reader.GetInt32(0),
+                            Firstname = reader.GetString(1),
+                            Middlename = reader.GetString(2),
+                            Lastname = reader.GetString(3),
+                            Birthday = reader.GetDateTime(4),
+                            Gender = reader.GetString(5),
+                            DateCreated = reader.GetDateTime(6),
+                        };
+
+                        if (customer == null)
+                        {
+                            return NotFound(); // Returns a 404 Not Found status code
+                        }
+                        customers.Add(customer);
+                    }
+                }
+            }
+            await _connection.CloseAsync();
+
+            return View(customers);
+        }
+
 
         public IActionResult CreateCustomerUi()
         {
@@ -74,7 +114,7 @@ namespace EventManagementSystem.Controllers
                 command.Parameters.AddWithValue("@lastname", customers.Lastname);
                 command.Parameters.AddWithValue("@Birthday", customers.Birthday);
                 command.Parameters.AddWithValue("@Gender", customers.Gender);
-           
+
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
@@ -95,7 +135,7 @@ namespace EventManagementSystem.Controllers
             var query = "SELECT * FROM customers WHERE id = @id";
             var command = new MySqlCommand(query, _connection);
             command.Parameters.AddWithValue("@id", id);
-            
+
             await using (var reader = command.ExecuteReader())
             {
                 if (reader.Read())
@@ -108,12 +148,12 @@ namespace EventManagementSystem.Controllers
                         Lastname = reader.GetString("Lastname"),
                         Gender = reader.GetString("Gender"),
                         Birthday = reader.GetDateTime("Birthday"),
-                
+
                     };
                     await _connection.CloseAsync();
-                    return View(customer);           
-                }        
-            }     
+                    return View(customer);
+                }
+            }
             return NotFound();
         }
 
@@ -167,20 +207,23 @@ namespace EventManagementSystem.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public async Task<IActionResult> DeleteCustomer(int id)
+        public async Task<IActionResult> UpdateCustomerForDelete(Customers customer)
         {
-            await _connection.OpenAsync();
-            var command = new MySqlCommand("sp_DeleteCustomer", _connection)
-            {
-                CommandType = CommandType.StoredProcedure
-            };
-            command.Parameters.AddWithValue("customerid", id);
 
-            await command.ExecuteNonQueryAsync();
+            await _connection.OpenAsync();
+
+            using (var command = new MySqlCommand("sp_UpdateCustomerForDelete", _connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("@customerid", customer.Id);
+
+                await command.ExecuteNonQueryAsync();
+            }
             await _connection.CloseAsync();
 
             return RedirectToAction(nameof(Index));
         }
+
     }
 }
 

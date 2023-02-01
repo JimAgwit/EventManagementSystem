@@ -1,13 +1,13 @@
 ﻿@model IEnumerable<EventManagementSystem.Models.Customers>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "GetDeletedCustomers";
 }
 
-<h2>Customer List</h2>
-<a class="btn btn-primary btn-sm" id="buttons" asp-action="CreateCustomerUI" asp-controller="Customer">New Customer</a>
-
-<a class="btn btn-secondary btn-sm" id="buttons" asp-action="GetDeletedCustomers" asp-controller="Customer">Deleted Customers</a>
+<h2>Deleted Customers</h2>
+<div class="float-right">
+    <a class="btn btn-secondary btn-sm" id="buttons" asp-action="Index" asp-controller="Customer">Back to Customers</a>
+</div>
 <table class="table">
     <thead>
         <tr>
@@ -29,9 +29,7 @@
             <th>
                 @Html.DisplayNameFor(model => model.DateCreated)
             </th>
-            <th>
-                Action
-            </th>
+
             <th></th>
         </tr>
     </thead>
@@ -57,10 +55,10 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.DateCreated)
                 </td>
+
                 <td>
-                    @Html.ActionLink("Edit", "EditCustomerDetails", new {  id=item.Id  }, new { @class = "actionButton"})
-                    @Html.ActionLink("Details", "GetCustomerDetails", new {  id=item.Id  }, new { @class = "actionButton"})
-                    @Html.ActionLink("Delete", "UpdateCustomerForDelete", new {  id=item.Id  }, new { @class = "actionButton"})
+                    @Html.ActionLink("Revert", "Edit", new { /* id=item.PrimaryKey */ }) |
+
                 </td>
             </tr>
         }
