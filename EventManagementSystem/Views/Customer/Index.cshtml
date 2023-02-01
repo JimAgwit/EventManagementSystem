@@ -1,0 +1,62 @@
+﻿@model IEnumerable<EventManagementSystem.Models.Customers>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Customer index</h1>
+<a class="controlItems" id="buttons" asp-action="CreateCustomerUI" asp-controller="Customer">New Customer</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Firstname)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Middlename)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Lastname)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Birthday)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Gender)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Id)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Firstname)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Middlename)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Lastname)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Birthday)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Gender)
+                </td>
+
+                <td>
+                    @Html.ActionLink("Edit", "EditCustomerDetails", new {  id=item.Id  }, new { @class = "actionButton"})
+                    @Html.ActionLink("Details", "GetCustomerDetails", new {  id=item.Id  }, new { @class = "actionButton"})
+                    @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
