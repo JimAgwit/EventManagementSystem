@@ -13,8 +13,7 @@ namespace EventManagementSystem.Controllers
      
         public CustomerController(MySqlConnection connection)
         {
-            _connection = connection;
-           
+            _connection = connection;          
         }
         public async Task<IActionResult> Index()
         {
@@ -128,7 +127,6 @@ namespace EventManagementSystem.Controllers
 
         public async Task<IActionResult> EditCustomerDetails(int id)
         {
-
             await _connection.OpenAsync();
             var query = "SELECT * FROM customers WHERE id = @id";
             var command = new MySqlCommand(query, _connection);
