@@ -39,6 +39,7 @@ namespace EventManagementSystem.Controllers
                             Lastname = reader.GetString(3),
                             Birthday = reader.GetDateTime(4),
                             Gender = reader.GetString(5),
+                            DateCreated = reader.GetDateTime(6),
                         };
                       
                         if(customer==null)
@@ -73,7 +74,7 @@ namespace EventManagementSystem.Controllers
                 command.Parameters.AddWithValue("@lastname", customers.Lastname);
                 command.Parameters.AddWithValue("@Birthday", customers.Birthday);
                 command.Parameters.AddWithValue("@Gender", customers.Gender);
-
+           
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
@@ -107,6 +108,7 @@ namespace EventManagementSystem.Controllers
                         Lastname = reader.GetString("Lastname"),
                         Gender = reader.GetString("Gender"),
                         Birthday = reader.GetDateTime("Birthday"),
+                
                     };
                     await _connection.CloseAsync();
                     return View(customer);           
@@ -172,7 +174,7 @@ namespace EventManagementSystem.Controllers
             {
                 CommandType = CommandType.StoredProcedure
             };
-            command.Parameters.AddWithValue("id", id);
+            command.Parameters.AddWithValue("customerid", id);
 
             await command.ExecuteNonQueryAsync();
             await _connection.CloseAsync();

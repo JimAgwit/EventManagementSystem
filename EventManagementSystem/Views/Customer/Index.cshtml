@@ -26,6 +26,9 @@
                 @Html.DisplayNameFor(model => model.Gender)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.DateCreated)
+            </th>
+            <th>
                 Action
             </th>
             <th></th>
@@ -50,7 +53,9 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.Gender)
                 </td>
-
+                    <td>
+                    @Html.DisplayFor(modelItem => item.DateCreated)
+                </td>
                 <td>
                     @Html.ActionLink("Edit", "EditCustomerDetails", new {  id=item.Id  }, new { @class = "actionButton"})
                     @Html.ActionLink("Details", "GetCustomerDetails", new {  id=item.Id  }, new { @class = "actionButton"})
