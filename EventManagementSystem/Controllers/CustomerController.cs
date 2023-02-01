@@ -1,4 +1,4 @@
-﻿using EventManagementSystem.Helpers;
+﻿
 using EventManagementSystem.Models;
 using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
@@ -10,15 +10,12 @@ namespace EventManagementSystem.Controllers
     public class CustomerController : Controller
     {
         private readonly MySqlConnection _connection;
-        private readonly MethodHelpers _methodHelpers;
-        public CustomerController(MySqlConnection connection, MethodHelpers methodHelpers)
+     
+        public CustomerController(MySqlConnection connection)
         {
             _connection = connection;
-            _methodHelpers = methodHelpers;
+           
         }
-
-
-
         public async Task<IActionResult> Index()
         {
             var customers = new List<Customers>();
@@ -48,6 +45,7 @@ namespace EventManagementSystem.Controllers
                             return NotFound(); // Returns a 404 Not Found status code
                         }
                         customers.Add(customer);
+                     
                     }
                 }
             }
@@ -224,6 +222,10 @@ namespace EventManagementSystem.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+
+
+       
     }
+
 }
 

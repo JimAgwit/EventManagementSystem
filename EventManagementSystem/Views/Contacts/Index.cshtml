@@ -1,0 +1,51 @@
+﻿@model IEnumerable<EventManagementSystem.Models.Contacts>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Contact Lists</h2>
+
+<p>
+    <a asp-action="CreateNewContactUi">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Phone)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Fullname)
+            </th>
+            <th>
+               Action
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                 <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Phone)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Fullname)
+                </td>
+
+                <td>
+                    @Html.ActionLink("Edit", "EditContact",  new {  id=item.Id  }, new { @class = "actionButton"})|
+                    @Html.ActionLink("Delete", "DeleteContact",   new {  id=item.Id  }, new { @class = "actionButton"})
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

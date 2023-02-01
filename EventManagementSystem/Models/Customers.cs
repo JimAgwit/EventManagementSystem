@@ -9,4 +9,6 @@
         public string? Gender { get; set; }
         public DateTime DateCreated { get; set; }
     }
+
+ 
 }

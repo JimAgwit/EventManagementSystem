@@ -1,0 +1,43 @@
+﻿@model EventManagementSystem.Models.Contacts
+
+@{
+    ViewData["Title"] = "CreateNewContactUi";
+}
+
+<h2>Create New Contact</h2>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="SaveContact">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="Fullname" class="control-label"></label>
+                <select asp-for="CustomerId" class="form-control">
+                    @foreach (var customer in ViewBag.CustomerLists as List<Customers>)
+                    {
+                        <option class="form-control" value="@customer.Id">@customer.Fullname</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Phone" class="control-label"></label>
+                <input asp-for="Phone" class="form-control" />
+                <span asp-validation-for="Phone" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

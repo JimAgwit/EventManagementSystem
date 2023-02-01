@@ -1,5 +1,6 @@
 ﻿using EventManagementSystem.Models;
 using MySql.Data.MySqlClient;
+using System.Data;
 
 namespace EventManagementSystem.Helpers
 {
@@ -8,26 +9,37 @@ namespace EventManagementSystem.Helpers
         private readonly MySqlConnection _connection;
         public MethodHelpers(MySqlConnection connection)
         {
-            _connection= connection;
+            _connection = connection;
         }
-        public async Task<Customers> GetCustId(int id)
+
+        public List<Customers> GetCustomerListForDropdown()
         {
-         
-            var customer = new Customers();
-            var query = "SELECT * FROM customers WHERE Id = @Id";
-            var command = new MySqlCommand(query, _connection);
-            command.Parameters.AddWithValue("@Id", id);
- 
-            await using (var reader = command.ExecuteReader())
+            List<Customers> customers = new List<Customers>();
+
+            _connection.Open();
+
+            using (MySqlCommand command = new MySqlCommand("sp_GetCustomerLists", _connection))
             {
-                if (reader.Read())
+                command.CommandType = CommandType.StoredProcedure;
+                using (MySqlDataReader reader = command.ExecuteReader())
                 {
-                    customer.Id = reader.GetInt32("id");            
-                    return customer;
+                    while (reader.Read())
+                    {
+                        int id = reader.GetInt32("Id");
+                        string name = reader.GetString("Fullname");
+                        customers.Add(new Customers
+                        {
+                            Id = id,
+                            Fullname = name
+                        });
+                    }
                 }
+                _connection.Close();
+                return customers;
             }
          
-            return null;
         }
     }
+
 }
+

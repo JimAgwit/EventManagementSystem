@@ -1,3 +1,4 @@
+
 using EventManagementSystem.Helpers;
 using MySql.Data.MySqlClient;
 
