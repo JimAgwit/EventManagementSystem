@@ -2,6 +2,7 @@
 using EventManagementSystem.Models;
 using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
+using MySqlX.XDevAPI.Common;
 using System.Data;
 
 namespace EventManagementSystem.Controllers
@@ -21,16 +22,17 @@ namespace EventManagementSystem.Controllers
         public async Task<IActionResult> Index()
         {
             var customers = new List<Customers>();
-
-            _connection.Open();
+                
+            await _connection.OpenAsync();
             await using (var command = new MySqlCommand("SELECT * FROM Customers", _connection))
             {
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
+
                         var customer = new Customers
-                        {
+                        {                       
                             Id = reader.GetInt32(0),
                             Firstname = reader.GetString(1),
                             Middlename = reader.GetString(2),
@@ -38,11 +40,16 @@ namespace EventManagementSystem.Controllers
                             Birthday = reader.GetDateTime(4),
                             Gender = reader.GetString(5),
                         };
-                        customers.Add(customer);
+                      
+                        if(customer==null)
+                        {
+                            return NotFound(); // Returns a 404 Not Found status code
+                        }
+                         customers.Add(customer);
                     }
                 }
             }
-            _connection.Close();
+            await _connection.CloseAsync();
 
             return View(customers);
         }
@@ -58,7 +65,7 @@ namespace EventManagementSystem.Controllers
 
             await using (var command = new MySqlCommand("sp_SaveCustomer", _connection))
             {
-                _connection.Open();
+                await _connection.OpenAsync();
                 command.CommandType = CommandType.StoredProcedure;
 
                 command.Parameters.AddWithValue("@Firstname", customers.Firstname);
@@ -74,27 +81,16 @@ namespace EventManagementSystem.Controllers
                         //  Console.WriteLine(reader["column1"] + " " + reader["column2"]);
                     }
                 }
-                _connection.Close();
+                await _connection.CloseAsync();
             }
 
             return RedirectToAction(nameof(Index));
         }
 
-        //public async Task<Customers> GetCustomerId(int id)
-        //{
-        //    _connection.Open();
-        //    await _methodHelpers.GetCustId(id);
-        //    _connection.Close();
-        //    return null;
-        //}
-        
         public async Task<IActionResult> EditCustomerDetails(int id)
         {
-            _connection.Open();
-            var custid = (await _methodHelpers.GetCustId(id));
-            _connection.Close();
 
-            _connection.Open();
+            await _connection.OpenAsync();
             var query = "SELECT * FROM customers WHERE id = @id";
             var command = new MySqlCommand(query, _connection);
             command.Parameters.AddWithValue("@id", id);
@@ -112,7 +108,7 @@ namespace EventManagementSystem.Controllers
                         Gender = reader.GetString("Gender"),
                         Birthday = reader.GetDateTime("Birthday"),
                     };
-                    _connection.Close();
+                    await _connection.CloseAsync();
                     return View(customer);           
                 }        
             }     
@@ -121,7 +117,7 @@ namespace EventManagementSystem.Controllers
 
         public async Task<IActionResult> GetCustomerDetails(int id)
         {
-            _connection.Open();
+            await _connection.OpenAsync();
             var query = "SELECT * FROM customers WHERE id = @id";
             var command = new MySqlCommand(query, _connection);
             command.Parameters.AddWithValue("@id", id);
@@ -139,7 +135,7 @@ namespace EventManagementSystem.Controllers
                         Gender = reader.GetString("Gender"),
                         Birthday = reader.GetDateTime("Birthday"),
                     };
-                    _connection.Close();
+                    await _connection.CloseAsync();
                     return View(customer);
                 }
             }
@@ -147,9 +143,11 @@ namespace EventManagementSystem.Controllers
         }
 
 
-        public async Task UpdateCustomer(Customers customer, int id)
-        {      
+        public async Task<IActionResult> UpdateCustomer(Customers customer)
+        {
+
             await _connection.OpenAsync();
+
             using (var command = new MySqlCommand("sp_UpdateCustomer", _connection))
             {
                 command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -163,8 +161,24 @@ namespace EventManagementSystem.Controllers
                 await command.ExecuteNonQueryAsync();
             }
             await _connection.CloseAsync();
+
+            return RedirectToAction(nameof(Index));
         }
 
+        public async Task<IActionResult> DeleteCustomer(int id)
+        {
+            await _connection.OpenAsync();
+            var command = new MySqlCommand("sp_DeleteCustomer", _connection)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            command.Parameters.AddWithValue("id", id);
+
+            await command.ExecuteNonQueryAsync();
+            await _connection.CloseAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
 

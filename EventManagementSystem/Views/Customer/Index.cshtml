@@ -4,7 +4,7 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Customer index</h1>
+<h2>Customer List</h2>
 <a class="controlItems" id="buttons" asp-action="CreateCustomerUI" asp-controller="Customer">New Customer</a>
 
 <table class="table">
@@ -26,7 +26,7 @@
                 @Html.DisplayNameFor(model => model.Gender)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Id)
+                Action
             </th>
             <th></th>
         </tr>
@@ -54,7 +54,7 @@
                 <td>
                     @Html.ActionLink("Edit", "EditCustomerDetails", new {  id=item.Id  }, new { @class = "actionButton"})
                     @Html.ActionLink("Details", "GetCustomerDetails", new {  id=item.Id  }, new { @class = "actionButton"})
-                    @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                    @Html.ActionLink("Delete", "DeleteCustomer", new {  id=item.Id  }, new { @class = "actionButton"})
                 </td>
             </tr>
         }
