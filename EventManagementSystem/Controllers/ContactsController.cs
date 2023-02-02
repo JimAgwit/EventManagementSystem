@@ -60,8 +60,10 @@ namespace EventManagementSystem.Controllers
         }
 
 
-        public IActionResult SaveContact(int seletectedId, Contacts contacts)
+        public IActionResult SaveContact(Contacts contacts)
         {
+
+
             _connection.Open();
             MySqlCommand command = new MySqlCommand("sp_SaveContact", _connection);
             command.CommandType = CommandType.StoredProcedure;
@@ -71,13 +73,14 @@ namespace EventManagementSystem.Controllers
             _connection.Close();
 
             return RedirectToAction("Index");
-            
+
+
         }
 
 
         public async Task<IActionResult> EditContact(int id)
         {
-           _connection.Open();
+            _connection.Open();
             var query = "SELECT * FROM contacts WHERE Id = @id";
             var command = new MySqlCommand(query, _connection);
             command.Parameters.AddWithValue("@id", id);
@@ -89,7 +92,7 @@ namespace EventManagementSystem.Controllers
                     var contacts = new Contacts
                     {
                         Id = reader.GetInt32("id"),
-                        Phone = reader.GetString("Phone")       
+                        Phone = reader.GetString("Phone")
                     };
                     _connection.Close();
                     return View(contacts);
@@ -100,7 +103,7 @@ namespace EventManagementSystem.Controllers
 
         public async Task<IActionResult> UpdateContact(Contacts contact)
         {
-          _connection.Open();
+            _connection.Open();
 
             using (var command = new MySqlCommand("sp_UpdateContact", _connection))
             {
@@ -109,7 +112,7 @@ namespace EventManagementSystem.Controllers
                 command.Parameters.AddWithValue("@phone", contact.Phone);
                 await command.ExecuteNonQueryAsync();
             }
-         _connection.Close();
+            _connection.Close();
 
             return RedirectToAction(nameof(Index));
         }
@@ -117,7 +120,7 @@ namespace EventManagementSystem.Controllers
 
         public async Task<IActionResult> DeleteContact(Contacts contact)
         {
-        _connection.Open();
+            _connection.Open();
 
             using (var command = new MySqlCommand("sp_DeleteContact", _connection))
             {
@@ -126,7 +129,7 @@ namespace EventManagementSystem.Controllers
 
                 await command.ExecuteNonQueryAsync();
             }
-           _connection.Close();
+            _connection.Close();
 
             return RedirectToAction(nameof(Index));
         }

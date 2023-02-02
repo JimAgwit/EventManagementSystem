@@ -174,8 +174,12 @@ namespace EventManagementSystem.Controllers
 
         public async Task<IActionResult> UpdateEvent(Event events)
         {
-             _connection.Open();
-
+            if (events.StartDate > events.EndDate)
+            {
+                ModelState.AddModelError("", "Check Date Values. Start date must not be greater than end date");
+                return View("EditEventDetails");
+            }
+            _connection.Open();
             using (var command = new MySqlCommand("sp_UpdateEvent", _connection))
             {
                 command.CommandType = CommandType.StoredProcedure;

@@ -65,7 +65,8 @@ namespace EventManagementSystem.Controllers
             _connection.Open();
             MySqlCommand command = new MySqlCommand("sp_CheckMaxBooking", _connection);
             command.CommandType = CommandType.StoredProcedure;
-            command.Parameters.AddWithValue("@CustomerId", events.Id);
+            command.Parameters.AddWithValue("@CustomerId", events.CustomerId);
+            command.Parameters.AddWithValue("@EventId", events.Id);
             var count = Convert.ToInt32(command.ExecuteScalar());
             _connection.Close();
             if (count >= 5)

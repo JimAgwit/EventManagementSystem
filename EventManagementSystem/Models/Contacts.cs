@@ -1,10 +1,13 @@
-﻿namespace EventManagementSystem.Models
+﻿using Microsoft.Build.Framework;
+
+namespace EventManagementSystem.Models
 {
     public class Contacts : BaseModel
     {
-       
-        public string? Phone { get; set; }
-        public string? Fullname { get; set; }
+        [Required]
+        public string Phone { get; set; }
+        [Required]
+        public string Fullname { get; set; }
     }
 
   

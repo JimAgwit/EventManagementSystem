@@ -1,8 +1,6 @@
-﻿
-using EventManagementSystem.Models;
+﻿using EventManagementSystem.Models;
 using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
-using MySqlX.XDevAPI.Common;
 using System.Data;
 
 namespace EventManagementSystem.Controllers
@@ -186,24 +184,27 @@ namespace EventManagementSystem.Controllers
 
         public async Task<IActionResult> UpdateCustomer(Customers customer)
         {
-
-            _connection.Open();
-
-            using (var command = new MySqlCommand("sp_UpdateCustomer", _connection))
+            if (ModelState.IsValid)
             {
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.AddWithValue("@customerid", customer.Id);
-                command.Parameters.AddWithValue("@Firstname", customer.Firstname);
-                command.Parameters.AddWithValue("@Middlename", customer.Middlename);
-                command.Parameters.AddWithValue("@Lastname", customer.Lastname);
-                command.Parameters.AddWithValue("@Gender", customer.Gender);
-                command.Parameters.AddWithValue("@Birthday", customer.Birthday);
+                _connection.Open();
 
-                await command.ExecuteNonQueryAsync();
+                using (var command = new MySqlCommand("sp_UpdateCustomer", _connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@customerid", customer.Id);
+                    command.Parameters.AddWithValue("@Firstname", customer.Firstname);
+                    command.Parameters.AddWithValue("@Middlename", customer.Middlename);
+                    command.Parameters.AddWithValue("@Lastname", customer.Lastname);
+                    command.Parameters.AddWithValue("@Gender", customer.Gender);
+                    command.Parameters.AddWithValue("@Birthday", customer.Birthday);
+
+                    await command.ExecuteNonQueryAsync();
+                }
+                _connection.Close();
+
+                return RedirectToAction(nameof(Index));
             }
-            _connection.Close();
-
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("GeneralErrorPage", "Home");
         }
 
         public async Task<IActionResult> UpdateCustomerForDelete(Customers customer)
