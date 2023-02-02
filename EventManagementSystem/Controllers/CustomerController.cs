@@ -10,16 +10,17 @@ namespace EventManagementSystem.Controllers
     public class CustomerController : Controller
     {
         private readonly MySqlConnection _connection;
-     
+
         public CustomerController(MySqlConnection connection)
         {
-            _connection = connection;          
+            _connection = connection;
         }
         public async Task<IActionResult> Index()
         {
+
             var customers = new List<Customers>();
 
-            await _connection.OpenAsync();
+            _connection.Open();
             await using (var command = new MySqlCommand("sp_GetAllCustomers", _connection))
             {
                 command.CommandType = CommandType.StoredProcedure;
@@ -44,11 +45,11 @@ namespace EventManagementSystem.Controllers
                             return NotFound(); // Returns a 404 Not Found status code
                         }
                         customers.Add(customer);
-                     
+
                     }
                 }
             }
-            await _connection.CloseAsync();
+            _connection.Close();
 
             return View(customers);
         }
@@ -58,7 +59,7 @@ namespace EventManagementSystem.Controllers
         {
             var customers = new List<Customers>();
 
-            await _connection.OpenAsync();
+            _connection.Open();
             await using (var command = new MySqlCommand("sp_GetDeletedCustomers", _connection))
             {
                 command.CommandType = CommandType.StoredProcedure;
@@ -86,7 +87,7 @@ namespace EventManagementSystem.Controllers
                     }
                 }
             }
-            await _connection.CloseAsync();
+            _connection.Close();
 
             return View(customers);
         }
@@ -100,34 +101,36 @@ namespace EventManagementSystem.Controllers
 
         public async Task<IActionResult> CreateCustomer(Customers customers)
         {
-
-            await using (var command = new MySqlCommand("sp_SaveCustomer", _connection))
+            if (ModelState.IsValid)
             {
-                await _connection.OpenAsync();
-                command.CommandType = CommandType.StoredProcedure;
-
-                command.Parameters.AddWithValue("@Firstname", customers.Firstname);
-                command.Parameters.AddWithValue("@Middlename", customers.Middlename);
-                command.Parameters.AddWithValue("@lastname", customers.Lastname);
-                command.Parameters.AddWithValue("@Birthday", customers.Birthday);
-                command.Parameters.AddWithValue("@Gender", customers.Gender);
-
-                using (var reader = command.ExecuteReader())
+                await using (var command = new MySqlCommand("sp_SaveCustomer", _connection))
                 {
-                    while (reader.Read())
-                    {
-                        //  Console.WriteLine(reader["column1"] + " " + reader["column2"]);
-                    }
-                }
-                await _connection.CloseAsync();
-            }
+                    _connection.Open();
+                    command.CommandType = CommandType.StoredProcedure;
 
-            return RedirectToAction(nameof(Index));
+                    command.Parameters.AddWithValue("@Firstname", customers.Firstname);
+                    command.Parameters.AddWithValue("@Middlename", customers.Middlename);
+                    command.Parameters.AddWithValue("@lastname", customers.Lastname);
+                    command.Parameters.AddWithValue("@Birthday", customers.Birthday);
+                    command.Parameters.AddWithValue("@Gender", customers.Gender);
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            //  Console.WriteLine(reader["column1"] + " " + reader["column2"]);
+                        }
+                    }
+                    _connection.Close();
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+            return RedirectToAction(nameof(CreateCustomerUi));
         }
 
         public async Task<IActionResult> EditCustomerDetails(int id)
         {
-            await _connection.OpenAsync();
+            _connection.Open();
             var query = "SELECT * FROM customers WHERE id = @id";
             var command = new MySqlCommand(query, _connection);
             command.Parameters.AddWithValue("@id", id);
@@ -146,7 +149,7 @@ namespace EventManagementSystem.Controllers
                         Birthday = reader.GetDateTime("Birthday"),
 
                     };
-                    await _connection.CloseAsync();
+                    _connection.Close();
                     return View(customer);
                 }
             }
@@ -155,7 +158,7 @@ namespace EventManagementSystem.Controllers
 
         public async Task<IActionResult> GetCustomerDetails(int id)
         {
-            await _connection.OpenAsync();
+            _connection.Open();
             var query = "SELECT * FROM customers WHERE id = @id";
             var command = new MySqlCommand(query, _connection);
             command.Parameters.AddWithValue("@id", id);
@@ -173,7 +176,7 @@ namespace EventManagementSystem.Controllers
                         Gender = reader.GetString("Gender"),
                         Birthday = reader.GetDateTime("Birthday"),
                     };
-                    await _connection.CloseAsync();
+                    _connection.Close();
                     return View(customer);
                 }
             }
@@ -184,7 +187,7 @@ namespace EventManagementSystem.Controllers
         public async Task<IActionResult> UpdateCustomer(Customers customer)
         {
 
-            await _connection.OpenAsync();
+            _connection.Open();
 
             using (var command = new MySqlCommand("sp_UpdateCustomer", _connection))
             {
@@ -198,7 +201,7 @@ namespace EventManagementSystem.Controllers
 
                 await command.ExecuteNonQueryAsync();
             }
-            await _connection.CloseAsync();
+            _connection.Close();
 
             return RedirectToAction(nameof(Index));
         }
@@ -206,7 +209,7 @@ namespace EventManagementSystem.Controllers
         public async Task<IActionResult> UpdateCustomerForDelete(Customers customer)
         {
 
-            await _connection.OpenAsync();
+            _connection.Open();
 
             using (var command = new MySqlCommand("sp_UpdateCustomerForDelete", _connection))
             {
@@ -215,14 +218,12 @@ namespace EventManagementSystem.Controllers
 
                 await command.ExecuteNonQueryAsync();
             }
-            await _connection.CloseAsync();
+            _connection.Close();
 
             return RedirectToAction(nameof(Index));
         }
 
 
-
-       
     }
 
 }

@@ -77,7 +77,7 @@ namespace EventManagementSystem.Controllers
 
         public async Task<IActionResult> EditContact(int id)
         {
-            await _connection.OpenAsync();
+           _connection.Open();
             var query = "SELECT * FROM contacts WHERE Id = @id";
             var command = new MySqlCommand(query, _connection);
             command.Parameters.AddWithValue("@id", id);
@@ -91,7 +91,7 @@ namespace EventManagementSystem.Controllers
                         Id = reader.GetInt32("id"),
                         Phone = reader.GetString("Phone")       
                     };
-                    await _connection.CloseAsync();
+                    _connection.Close();
                     return View(contacts);
                 }
             }
@@ -100,7 +100,7 @@ namespace EventManagementSystem.Controllers
 
         public async Task<IActionResult> UpdateContact(Contacts contact)
         {
-            await _connection.OpenAsync();
+          _connection.Open();
 
             using (var command = new MySqlCommand("sp_UpdateContact", _connection))
             {
@@ -109,7 +109,7 @@ namespace EventManagementSystem.Controllers
                 command.Parameters.AddWithValue("@phone", contact.Phone);
                 await command.ExecuteNonQueryAsync();
             }
-            await _connection.CloseAsync();
+         _connection.Close();
 
             return RedirectToAction(nameof(Index));
         }
@@ -117,7 +117,7 @@ namespace EventManagementSystem.Controllers
 
         public async Task<IActionResult> DeleteContact(Contacts contact)
         {
-            await _connection.OpenAsync();
+        _connection.Open();
 
             using (var command = new MySqlCommand("sp_DeleteContact", _connection))
             {
@@ -126,7 +126,7 @@ namespace EventManagementSystem.Controllers
 
                 await command.ExecuteNonQueryAsync();
             }
-            await _connection.CloseAsync();
+           _connection.Close();
 
             return RedirectToAction(nameof(Index));
         }

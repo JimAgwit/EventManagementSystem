@@ -1,0 +1,45 @@
+﻿@model EventManagementSystem.Models.Event
+
+@{
+    ViewData["Title"] = "AssignEventUi";
+}
+
+<h2>Assign Event</h2>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="SaveAssignedEvent">
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="EventName" class="control-label"></label>
+                <select asp-for="Id" class="form-control">
+                    @foreach (var events in ViewBag.ActiveEventsList as List<Event>)
+                    {
+                        <option class="form-control" value="@events.Id">@events.EventName</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Fullname" class="control-label"></label>
+                <select asp-for="CustomerId" class="form-control">
+                    @foreach (var customers in ViewBag.CustomerListForEvent as List<Customers>)
+                    {
+                        <option class="form-control" value="@customers.Id">@customers.Fullname</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -39,6 +39,36 @@ namespace EventManagementSystem.Helpers
             }
          
         }
+
+        public List<Event> GetActiveEventForDropdown()
+        {
+            List<Event> events = new List<Event>();
+
+            _connection.Open();
+
+            using (MySqlCommand command = new MySqlCommand("sp_GetActiveEvents", _connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        int id = reader.GetInt32("Id");
+                        string eventName = reader.GetString("EventName");
+                        events.Add(new Event
+                        {
+                            Id = id,
+                            EventName = eventName
+                        });
+                    }
+                }
+                _connection.Close();
+                return events;
+            }
+
+        }
+
+     
     }
 
 }

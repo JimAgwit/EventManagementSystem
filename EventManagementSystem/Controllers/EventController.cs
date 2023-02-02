@@ -55,6 +55,43 @@ namespace EventManagementSystem.Controllers
         }
 
 
+        //Expired events
+        public async Task<IActionResult> GetExpiredEvents()
+        {
+            var eventList = new List<Event>();
+
+            _connection.Open();
+            await using (var command = new MySqlCommand("sp_GetExpiredEvents", _connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var events = new Event
+                        {
+                            Id = reader.GetInt32(0),
+                            EventName = reader.GetString(1),
+                            Description = reader.GetString(2),
+                            StartDate = reader.GetDateTime(3),
+                            EndDate = reader.GetDateTime(4)
+
+                        };
+
+                        if (events == null)
+                        {
+                            return NotFound(); // Returns a 404 Not Found status code
+                        }
+                        eventList.Add(events);
+
+                    }
+                }
+            }
+            _connection.Close();
+
+            return View(eventList);
+        }
+
         public IActionResult CreateEventUi()
         {
             return View();
@@ -63,6 +100,11 @@ namespace EventManagementSystem.Controllers
         [HttpPost]
         public IActionResult SaveEvent(Event events)
         {
+            if (events.StartDate > events.EndDate)
+            {
+                ModelState.AddModelError("", "Check Date Values. Start date must not be greater than end date");
+                return View("CreateEventUi");
+            }
             _connection.Open();
             MySqlCommand command = new MySqlCommand("sp_SaveEvent", _connection);
             command.CommandType = CommandType.StoredProcedure;
@@ -79,33 +121,7 @@ namespace EventManagementSystem.Controllers
 
         public async Task<IActionResult> EditEventDetails(int id)
         {
-            await _connection.OpenAsync();
-            var query = "SELECT * FROM events WHERE id = @eventId";
-            var command = new MySqlCommand(query, _connection);
-            command.Parameters.AddWithValue("@eventId", id);
-
-            await using (var reader = command.ExecuteReader())
-            {
-                if (reader.Read())
-                {
-                    var events = new Event
-                    {
-                        Id = reader.GetInt32("id"),
-                        EventName = reader.GetString("EventName"),
-                        Description = reader.GetString("Description"),
-                        StartDate = reader.GetDateTime("StartDate"),
-                        EndDate = reader.GetDateTime("EndDate")                 
-                    };
-                    await _connection.CloseAsync();
-                    return View(events);  
-                }
-            }
-            return NotFound();
-        }
-
-        public async Task<IActionResult> GetEventDetails(int id)
-        {
-            await _connection.OpenAsync();
+             _connection.Open();
             var query = "SELECT * FROM events WHERE id = @eventId";
             var command = new MySqlCommand(query, _connection);
             command.Parameters.AddWithValue("@eventId", id);
@@ -122,7 +138,33 @@ namespace EventManagementSystem.Controllers
                         StartDate = reader.GetDateTime("StartDate"),
                         EndDate = reader.GetDateTime("EndDate")
                     };
-                    await _connection.CloseAsync();
+                     _connection.Close();
+                    return View(events);
+                }
+            }
+            return NotFound();
+        }
+
+        public async Task<IActionResult> GetEventDetails(int id)
+        {
+             _connection.Open();
+            var query = "SELECT * FROM events WHERE id = @eventId";
+            var command = new MySqlCommand(query, _connection);
+            command.Parameters.AddWithValue("@eventId", id);
+
+            await using (var reader = command.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    var events = new Event
+                    {
+                        Id = reader.GetInt32("id"),
+                        EventName = reader.GetString("EventName"),
+                        Description = reader.GetString("Description"),
+                        StartDate = reader.GetDateTime("StartDate"),
+                        EndDate = reader.GetDateTime("EndDate")
+                    };
+                     _connection.Close();
                     return View(events);
                 }
             }
@@ -132,7 +174,7 @@ namespace EventManagementSystem.Controllers
 
         public async Task<IActionResult> UpdateEvent(Event events)
         {
-            await _connection.OpenAsync();
+             _connection.Open();
 
             using (var command = new MySqlCommand("sp_UpdateEvent", _connection))
             {
@@ -142,18 +184,18 @@ namespace EventManagementSystem.Controllers
                 command.Parameters.AddWithValue("@Description", events.Description);
                 command.Parameters.AddWithValue("@StartDate", events.StartDate);
                 command.Parameters.AddWithValue("@EndDate", events.EndDate);
-         
+
 
                 await command.ExecuteNonQueryAsync();
             }
-            await _connection.CloseAsync();
+             _connection.Close();
 
             return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> DeleteEvent(Event events)
         {
-            await _connection.OpenAsync();
+             _connection.Open();
 
             using (var command = new MySqlCommand("sp_DeleteEvent", _connection))
             {
@@ -162,7 +204,7 @@ namespace EventManagementSystem.Controllers
 
                 await command.ExecuteNonQueryAsync();
             }
-            await _connection.CloseAsync();
+             _connection.Close();
 
             return RedirectToAction(nameof(Index));
         }
